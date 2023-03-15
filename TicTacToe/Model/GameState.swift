@@ -19,4 +19,11 @@ enum GameState: Equatable {
         }
         return "Failed"
     }
+    
+    var isFinished: Bool {
+        if case .finished(_) = self {
+            return true
+        }
+        return false
+    }
 }

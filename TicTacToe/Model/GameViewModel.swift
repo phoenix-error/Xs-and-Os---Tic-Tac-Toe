@@ -13,7 +13,11 @@ struct PopupAlert: Identifiable, Equatable {
     var message: String
 }
 
-enum ComputerDifficulty {
+enum ComputerDifficulty: String, Identifiable, CaseIterable, Codable {
+    var id: String {
+        self.rawValue
+    }
+    
     case random
     case smart
     case ai
@@ -28,9 +32,10 @@ final class GameViewModel: ObservableObject {
     }
     
     @Published var currentPlayer: Player = .X
-    @Published var difficulty: ComputerDifficulty = .smart
     @Published var popup: PopupAlert?
     @Published var gameState: GameState = .inProgress(player: .X)
+    
+    @AppStorage(StorageKeys.difficulty.rawValue) var difficulty: ComputerDifficulty = .smart
     
     func resetGame() {
         board = Array(repeating: Array(repeating: nil, count: 3), count: 3)
@@ -57,15 +62,24 @@ final class GameViewModel: ObservableObject {
     
     func makeMove(ind: Int) {
         let (row, col) = indexToRowAndCol(ind: ind)
-        if board[row][col] == nil {
-            board[row][col] = currentPlayer
-            currentPlayer.toggle()
+        withAnimation {
+            if board[row][col] == nil {
+                board[row][col] = currentPlayer
+                self.currentPlayer.toggle()
+            }
         }
-        
         
         if case .inProgress(_) = gameState {
-            makeComputerMove()
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.5...5.0)) {
+                let (row, col) = self.getComputerMove()
+                withAnimation {
+                    self.board[row][col] = self.currentPlayer
+                    self.objectWillChange.send()
+                    self.currentPlayer.toggle()
+                }
+            }
         }
+        
     }
     
     func getSizeOfCell(for width: CGFloat) -> CGFloat {
@@ -89,17 +103,6 @@ final class GameViewModel: ObservableObject {
 
 // MARK: Minimax
 extension GameViewModel {
-    func makeComputerMove() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.currentPlayer = .O
-            let (row, col) = self.getComputerMove()
-            withAnimation {
-                self.board[row][col] = self.currentPlayer
-                self.objectWillChange.send()
-            }
-            self.currentPlayer = .X
-        }
-    }
     
     func getComputerMove() -> (Int, Int) {
         switch difficulty {

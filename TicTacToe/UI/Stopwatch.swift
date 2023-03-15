@@ -53,6 +53,7 @@ struct Stopwatch: View {
                 .tracking(2)
         }
         .font(.title3)
+        .fontWeight(.medium)
         .onAppear {
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
                 progressTime += 1
