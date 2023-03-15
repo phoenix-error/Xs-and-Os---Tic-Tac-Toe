@@ -23,8 +23,9 @@ enum ComputerDifficulty: String, Identifiable, CaseIterable, Codable {
     case ai
 }
 
+typealias Board = [[Player?]]
 final class GameViewModel: ObservableObject {
-    typealias Board = [[Player?]]
+    
     private(set) var board: Board = Array(repeating: Array(repeating: nil, count: 3), count: 3) {
         didSet {
             updateGameState()
@@ -36,6 +37,11 @@ final class GameViewModel: ObservableObject {
     @Published var gameState: GameState = .inProgress(player: .X)
     
     @AppStorage(StorageKeys.difficulty.rawValue) var difficulty: ComputerDifficulty = .smart
+    @AppStorage(StorageKeys.wins.key) var wins = 0
+    @AppStorage(StorageKeys.losses.key) var losses = 0
+    @AppStorage(StorageKeys.draws.key) var draws = 0
+    @AppStorage(StorageKeys.streak.key) var streak = 0
+    @AppStorage(StorageKeys.highestStreak.key) var maxStreak = 0
     
     func resetGame() {
         board = Array(repeating: Array(repeating: nil, count: 3), count: 3)
@@ -50,11 +56,20 @@ final class GameViewModel: ObservableObject {
             switch winner {
             case .none:
                 popup = PopupAlert(title: "Draw", message: "Play again")
+                draws += 1
+                streak = 0
             case .some(let player):
                 if player == .X {
+                    wins += 1
+                    streak += 1
+                    if maxStreak < streak {
+                        maxStreak = streak 
+                    }
                     popup = PopupAlert(title: "Victory", message: "Congratulations")
                 } else {
                     popup = PopupAlert(title: "Loss", message: "Better luck next time")
+                    losses += 1
+                    streak = 0
                 }
             }
         }
@@ -121,7 +136,7 @@ extension GameViewModel {
                 return getRandomMove(baord: self.board, player: .O)
             }
         case .ai:
-            return getRandomMove(baord: self.board, player: .O)
+            return AiPlayer.getAIMove(board: board, player: .O) ?? getRandomMove(baord: self.board, player: .O)
         }
     }
     
