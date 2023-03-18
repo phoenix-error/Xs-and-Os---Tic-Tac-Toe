@@ -21,6 +21,17 @@ enum ComputerDifficulty: String, Identifiable, CaseIterable, Codable {
     case random
     case smart
     case ai
+    
+    var computerString: String {
+        switch self {
+        case .random:
+            return "Random Computer"
+        case .smart:
+            return "Smart Computer"
+        case .ai:
+            return "AI"
+        }
+    }
 }
 
 typealias Board = [[Player?]]
