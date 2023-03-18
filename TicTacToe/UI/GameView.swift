@@ -136,7 +136,7 @@ struct PlayerView: View {
     var body: some View {
         HStack {
             Label {
-                Text(player == .X ? "You": "Ai")
+                Text(player == .X ? "You": viewModel.difficulty.computerString)
                     .font(.title2)
                     .fontWeight(.medium)
                     .padding(.leading)
