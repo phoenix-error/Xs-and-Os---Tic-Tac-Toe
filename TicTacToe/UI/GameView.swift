@@ -146,6 +146,7 @@ struct PlayerView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 50, height: 30)
             }
+            .foregroundColor(.black)
             Spacer()
             if viewModel.currentPlayer == player && !viewModel.gameState.isFinished {
                 Stopwatch()
@@ -158,7 +159,6 @@ struct PlayerView: View {
         .padding()
         .padding(.vertical, 10)
         .background(Color.cardBackgroundColor)
-        
         .clipShape(RoundedRectangle(cornerRadius: proxy.size.width / 24))
         .if (viewModel.currentPlayer == player) { view in
             view

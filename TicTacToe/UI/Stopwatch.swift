@@ -54,6 +54,7 @@ struct Stopwatch: View {
         }
         .font(.title3)
         .fontWeight(.medium)
+        .foregroundColor(.black)
         .onAppear {
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
                 progressTime += 1
